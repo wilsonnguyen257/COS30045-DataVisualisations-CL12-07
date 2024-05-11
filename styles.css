@@ -1,0 +1,29 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+
+main {
+    padding: 2em;
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+#scatter-plot, #bar-charts {
+    display: flex;
+    justify-content: center;
+}
+
+#scatter-plot svg, #bar-charts svg {
+    margin: 1em;
+}
