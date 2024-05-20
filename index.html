@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Health Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header>
-        <h1>Health Dashboard</h1>
+      <h1>Health Dashboard</h1>
     </header>
+
+    <h3>Select Countries</h3>
+    <div class="dropdown-header">
+    </div>
+
+    <h3>Select Year</h3>
+    <div class="slidecontainer">
+      <div class="slider-input">
+        <span>2000</span>
+        <input
+          type="range"
+          min="2000"
+          max="2022"
+          value="2010"
+          class="slider"
+          id="year-input"
+        />
+        <span>2022</span>
+      </div>
+      <span id="year-value"></span>
+    </div>
     <main>
-        <section id="main-visualization">
-            <h2>Health Expenditure vs. Life Expectancy</h2>
-            <div id="scatter-plot"></div>
-        </section>
-        <section id="secondary-visualizations">
-            <h2>Healthcare Resource Utilization</h2>
-            <div id="bar-charts"></div>
-        </section>
+      <section id="main-visualization">
+        <h2>Life Expectancy by country</h2>
+        <div id="scatter-plot"></div>
+      </section>
     </main>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
