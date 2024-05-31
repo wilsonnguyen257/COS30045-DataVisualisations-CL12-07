@@ -10,42 +10,18 @@ let state = {
   year: 2010,
 };
 
-/* ["country-1", "country-2", "country-3", "country-4", "country-5"]; */
 const dropdownIds = getEmptyArray(NUMBER_OF_COUNTRIES).map(
   (_, i) => `country-${i + 1}`
 );
 
 const dropdownHeader = document.querySelector(".dropdown-header");
 
-/* adding dropdowns */
-dropdownIds.forEach((elementId, i) => {
-  dropdownHeader.innerHTML += `<div>
-    <span class="color-dot" style="background-color: ${COLOR_PALLETE[i]}"></span>
-    <select id="${elementId}"></select>
-  </div>`;
-});
-
 /* the main function that renders and populates data based on loaded files */
 function onDataLoad(data) {
-  const uniqueCountries = Array.from(
-    new Set(data.map((d) => d.country))
-  ).sort();
+  const uniqueCountries = Array.from(new Set(data.map((d) => d.country))).sort();
 
-  const dropdownEls = dropdownIds.map((id) => document.getElementById(id));
-  dropdownEls.forEach((selectEl, i) => {
-    uniqueCountries.forEach((country) => {
-      const option = document.createElement("option");
-      option.value = country;
-      option.text = country;
-      selectEl.appendChild(option);
-    });
-
-    selectEl.onchange = function (ev) {
-      const value = ev.target.value;
-      state.countries[i] = value;
-      updateValues(state);
-    };
-  });
+  const totalCountries = uniqueCountries.length;
+  const COLOR_PALLETE = generateColorPallete(totalCountries);
 
   const slider = document.getElementById("year-input");
   const output = document.getElementById("year-value");
@@ -58,49 +34,104 @@ function onDataLoad(data) {
   };
 
   function render(countries, year) {
-    const filteredData = countries.map(
-      (country) =>
-        data.find((d) => d.country === country && d.year == year) || data[0]
-    );
+    const filteredData = data.filter(d => d.year == year);
     document.getElementById("scatter-plot").innerHTML = "";
-    const scatterPlot = d3
-      .select("#scatter-plot")
+
+    const margin = { top: 20, right: 50, bottom: 50, left: 50 }; // Increased right margin
+    const width = 1000 - margin.left - margin.right; // Width remains 1000
+    const height = 400 - margin.top - margin.bottom; // Increased height
+
+    const scatterPlot = d3.select("#scatter-plot")
       .append("svg")
-      .attr("width", 800)
-      .attr("height", 300);
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const x = d3.scaleLinear().domain([0, 20]).range([50, 750]);
-    const y = d3.scaleLinear().domain([0, 100]).range([250, 50]);
+    const maxExpenditure = d3.max(filteredData, d => d.expenditure) || 1;
+    const maxLifeExpectancy = d3.max(filteredData, d => d.lifeExpentency) || 1;
 
-    scatterPlot
-      .selectAll("circle")
+    const x = d3.scaleLinear()
+      .domain([0, maxExpenditure * 1.2])  
+      .range([0, width]);
+
+    const y = d3.scaleLinear()
+      .domain([0, maxLifeExpectancy * 1.2])
+      .range([height, 0]);
+
+    scatterPlot.selectAll("circle")
       .data(filteredData)
       .enter()
       .append("circle")
-      .attr("cx", (d) => x(d.expenditure))
-      .attr("cy", (d) => y(d.lifeExpentency))
+      .attr("cx", d => x(d.expenditure))
+      .attr("cy", d => y(d.lifeExpentency))
       .attr("r", 5)
-      .attr("fill", (_, i) => COLOR_PALLETE[i]);
+      .attr("fill", d => {
+        const index = uniqueCountries.indexOf(d.country);
+        return COLOR_PALLETE[index];
+      })
+      .on("mouseover", function(event, d) {
+        d3.select(this).attr("r", 10);
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        tooltip.html(`${d.country}<br/>Life Expectancy: ${d.lifeExpentency}<br/>Expenditure: ${d.expenditure}`)
+          .style("left", (event.pageX + 5) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function(d) {
+        d3.select(this).attr("r", 5);
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      });
 
-    scatterPlot.append("g").attr("transform", "translate(0, 250)").call(d3.axisBottom(x));
-    scatterPlot.append("g").attr("transform", "translate(50, 0)").call(d3.axisLeft(y));
+    scatterPlot.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(x));
 
-    scatterPlot.append("text").attr("transform", "rotate(-90)").attr("y", 15).attr("x", -150).style("text-anchor", "middle").text("Life Expectancy");
-    scatterPlot.append("text").attr("transform", "translate(400, 300)").style("text-anchor", "middle").text("Expenditure");
+    scatterPlot.append("g")
+      .call(d3.axisLeft(y));
+
+    scatterPlot.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -margin.left + 15)
+      .attr("x", -height / 2)
+      .style("text-anchor", "middle")
+      .text("Life Expectancy");
+
+    scatterPlot.append("text")
+      .attr("transform", `translate(${width / 2},${height + margin.bottom - 10})`)
+      .style("text-anchor", "middle")
+      .text("Expenditure");
+
+    // Tooltip
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
   }
 
   function updateValues({ countries, year }) {
     slider.value = year;
     output.innerHTML = year;
 
-    dropdownEls.forEach((selectEl, i) => {
-      selectEl.value = countries[i];
-    });
-
     render(countries, year);
   }
 
   updateValues(state);
+}
+
+
+
+/* 
+  splits colors in hsl range [0-360] based on given number
+  returns list of colors - string[]
+ */
+function generateColorPallete(numberOfColors) {
+  if (numberOfColors < 1) numberOfColors = 1; // defaults to one color - avoid divide by zero
+  const getColorByIndex = (_, colorNum) =>
+    `hsl(${(colorNum * (360 / numberOfColors)) % 360},100%,50%)`;
+  return getEmptyArray(numberOfColors).map(getColorByIndex);
 }
 
 /* returns an empty array with given size */
@@ -110,19 +141,13 @@ function getEmptyArray(n) {
 
 /* transforms and return grouped csv data to array of objects */
 function transformData(rawCsvData) {
-  const transformedData = [];
-
-  rawCsvData.forEach(d => {
-    for (let i = 0; i < MAX_YEARS; i++) {
-      transformedData.push({
-        country: d.Country,
-        year: 2000 + i,
-        value: d[2000 + i],
-      });
-    }
-  });
-
-  return transformedData;
+  return rawCsvData.flatMap((d) =>
+    getEmptyArray(MAX_YEARS).map((_, i) => ({
+      country: d.Country,
+      year: 2000 + i,
+      value: d[2000 + i],
+    }))
+  );
 }
 
 /* merges the 2 datasets */
@@ -139,19 +164,9 @@ function mergeExpectencyAndExpenditure([lifeExpectData, expenditureData]) {
   }));
 }
 
-/* 
-  splits colors in hsl range [0-360] based on given number
-  returns list of colors - string[]
- */
-function generateColorPallete(numberOfColors) {
-  if (numberOfColors < 1) numberOfColors = 1; // defaults to one color - avoid divide by zero
-  const getColorByIndex = (_, colorNum) =>
-    `hsl(${(colorNum * (360 / numberOfColors)) % 360},100%,50%)`;
-  return getEmptyArray(numberOfColors).map(getColorByIndex);
-}
-
 // loading, transforming and rendering data
 Promise.all([d3.csv("./LifeExpectency.csv"), d3.csv("./Expenditure.csv")])
-  .then(datasets => datasets.map(transformData))
+  .then((datasets) => datasets.map(transformData))
   .then(mergeExpectencyAndExpenditure)
   .then(onDataLoad);
+
