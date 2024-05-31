@@ -169,4 +169,3 @@ Promise.all([d3.csv("./LifeExpectency.csv"), d3.csv("./Expenditure.csv")])
   .then((datasets) => datasets.map(transformData))
   .then(mergeExpectencyAndExpenditure)
   .then(onDataLoad);
-
