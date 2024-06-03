@@ -1,38 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Health Dashboard</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Visualizations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f8f8;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #007BFF;
+            width: 100%;
+            padding: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .visualization-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        iframe {
+            width: 90%;
+            height: 100vh;
+            border: none;
+        }
+        @media (max-width: 768px) {
+            iframe {
+                height: 400px;
+            }
+            nav a {
+                margin: 0 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            iframe {
+                height: 300px;
+            }
+            nav {
+                display: flex;
+                flex-direction: column;
+            }
+            nav a {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
     <header>
-      <h1>Health Dashboard</h1>
+        <h1>Health Visualizations</h1>
     </header>
-    <h3>Select Year</h3>
-    <div class="slidecontainer">
-      <div class="slider-input">
-        <span>2000</span>
-        <input
-          type="range"
-          min="2000"
-          max="2022"
-          value="2010"
-          class="slider"
-          id="year-input"
-        />
-        <span>2022</span>
-      </div>
-      <span id="year-value"></span>
+    <nav>
+        <a href="visualization1.html" onclick="loadVisualization(event, 'visualization1.html')">Visualization 1: Life Expectancy</a>
+        <a href="visualization2.html" onclick="loadVisualization(event, 'visualization2.html')">Visualization 2: Multi-Line Chart</a>
+        <a href="visualization3.html" onclick="loadVisualization(event, 'visualization3.html')">Visualization 3: Stacked Bar Chart</a>
+    </nav>
+    <div class="visualization-container">
+        <iframe id="visualizationFrame" src="visualization1.html"></iframe>
     </div>
-    <main>
-      <section id="main-visualization">
-        <h2>Life Expectancy by country</h2>
-        <div id="scatter-plot"></div>
-      </section>
-    </main>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+    <script>
+        function loadVisualization(event, src) {
+            event.preventDefault();
+            document.getElementById('visualizationFrame').src = src;
+        }
+    </script>
+</body>
 </html>

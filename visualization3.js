@@ -108,21 +108,29 @@ function updateChart() {
         };
     });
 
-    if (filteredData.length === 0) {
-        svg.selectAll("*").remove();
-        return;
-    }
-
     const dataTransformed = [];
-    years.forEach(year => {
-        if (year >= startYear && year <= endYear) {
-            const obj = { year };
-            filteredData.forEach(country => {
-                obj[country.id] = country.values.find(v => v.year === year)?.consultations || 0;
-            });
-            dataTransformed.push(obj);
-        }
-    });
+    if (filteredData.length > 0) {
+        years.forEach(year => {
+            if (year >= startYear && year <= endYear) {
+                const obj = { year };
+                filteredData.forEach(country => {
+                    obj[country.id] = country.values.find(v => v.year === year)?.consultations || 0;
+                });
+                dataTransformed.push(obj);
+            }
+        });
+    } else {
+        // Render an empty chart
+        years.forEach(year => {
+            if (year >= startYear && year <= endYear) {
+                const obj = { year };
+                countries.forEach(country => {
+                    obj[country.id] = 0;
+                });
+                dataTransformed.push(obj);
+            }
+        });
+    }
 
     const keys = selectedCountries;
 
@@ -135,7 +143,6 @@ function updateChart() {
 
     svg.selectAll("*").remove();
 
-    // Show the bars
     svg.append("g")
         .selectAll("g")
         .data(stackedData)

@@ -6,13 +6,57 @@
     <title>Stacked Bar Chart: Consultations per Year</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f8f8;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .control-item {
+            flex: 1 1 300px;
+            max-width: 400px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .country-select-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #chart-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        #chart {
+            width: 70%;
+            max-width: 800px;
+            height: 500px;
+        }
         .axis text { font-size: 12px; }
         .axis path, .axis line { fill: none; stroke: #000; }
-        .bar { stroke-width: 1px; }
         .tooltip {
             position: absolute;
             text-align: center;
-            width: 70px;
+            width: 60px;
             height: 42px;
             padding: 2px;
             font: 12px sans-serif;
@@ -21,49 +65,70 @@
             border-radius: 8px;
             pointer-events: none;
         }
-        .dropdown {
-            border: 1px solid #ccc;
-            padding: 10px;
-            width: 200px;
-            margin-bottom: 20px;
-        }
         .legend {
             font-size: 12px;
         }
-        .legend rect {
-            stroke-width: 2;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
         }
-        .country-select-container {
-            max-height: 200px;
-            overflow-y: auto;
+        .legend-item span {
+            margin-right: 5px;
+        }
+        @media (max-width: 768px) {
+            .control-item {
+                flex: 1 1 100%;
+            }
+            #chart {
+                height: 400px;
+            }
+        }
+        @media (max-width: 480px) {
+            #chart {
+                height: 300px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div>
-        <label for="datasetSelect">Select Dataset:</label>
-        <select id="datasetSelect">
-            <option value="doctors_consultations_in_person_dataset.csv">Doctors In-Person Consultations</option>
-            <option value="dentists_consultations_in_person_dataset.csv">Dentists In-Person Consultations</option>
-            <option value="doctors_teleconsultations_dataset.csv">Doctors Teleconsultations</option>
-        </select>
-    </div>
-    <div>
-        <label for="countrySelect">Choose countries:</label>
-        <div>
-            <button id="selectAll">Select All</button>
-            <button id="unselectAll">Unselect All</button>
+    <header>
+        <h1>Stacked Bar Chart: Consultations per Year</h1>
+    </header>
+    <div class="controls">
+        <div class="control-item">
+            <label for="datasetSelect">Select Dataset:</label>
+            <select id="datasetSelect">
+                <option value="doctors_consultations_in_person_dataset.csv">Doctors In-Person Consultations</option>
+                <option value="dentists_consultations_in_person_dataset.csv">Dentists In-Person Consultations</option>
+                <option value="doctors_teleconsultations_dataset.csv">Doctors Teleconsultations</option>
+            </select>
         </div>
-        <div id="countrySelect" class="dropdown country-select-container"></div>
+        <div class="control-item">
+            <label for="countrySelect">Choose countries:</label>
+            <div>
+                <button id="selectAll">Select All</button>
+                <button id="unselectAll">Unselect All</button>
+            </div>
+            <div id="countrySelect" class="country-select-container"></div>
+        </div>
+        <div class="control-item">
+            <label for="yearRange">Select Year Range:</label>
+            <div class="slider-container">
+                <input type="range" id="yearRangeStart" min="2015" max="2022" value="2015">
+                <input type="range" id="yearRangeEnd" min="2015" max="2022" value="2022">
+                <p>Start Year: <span id="startYear">2015</span></p>
+                <p>End Year: <span id="endYear">2022</span></p>
+            </div>
+        </div>
     </div>
-    <div>
-        <label for="yearRange">Select Year Range:</label>
-        <input type="range" id="yearRangeStart" min="2015" max="2022" value="2015" step="1">
-        <input type="range" id="yearRangeEnd" min="2015" max="2022" value="2022" step="1">
-        <p>Start Year: <span id="startYear">2015</span></p>
-        <p>End Year: <span id="endYear">2022</span></p>
+    <div id="chart-container">
+        <div id="chart"></div>
     </div>
-    <div id="chart"></div>
     <div id="legend"></div>
     <script src="visualization3.js"></script>
 </body>
