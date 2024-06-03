@@ -56,8 +56,8 @@
         .tooltip {
             position: absolute;
             text-align: center;
-            width: 72px;
-            height: 42px;
+            width: 60px;
+            height: 20px;
             padding: 2px;
             font: 12px sans-serif;
             background: lightsteelblue;
@@ -75,6 +75,13 @@
         }
         .legend-item span {
             margin-right: 5px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        .slider-container input {
+            margin: 0 10px;
         }
         @media (max-width: 768px) {
             .control-item {
@@ -101,14 +108,6 @@
     </header>
     <div class="controls">
         <div class="control-item">
-            <label for="datasetSelect">Select Dataset:</label>
-            <select id="datasetSelect">
-                <option value="doctors_consultations_in_person_dataset.csv">Doctors In-Person Consultations</option>
-                <option value="dentists_consultations_in_person_dataset.csv">Dentists In-Person Consultations</option>
-                <option value="doctors_teleconsultations_dataset.csv">Doctors Teleconsultations</option>
-            </select>
-        </div>
-        <div class="control-item">
             <label for="countrySelect">Choose countries:</label>
             <div>
                 <button id="selectAll">Select All</button>
@@ -117,12 +116,11 @@
             <div id="countrySelect" class="country-select-container"></div>
         </div>
         <div class="control-item">
-            <label for="yearRange">Select Year Range:</label>
+            <label for="yearSlider">Select Year:</label>
             <div class="slider-container">
-                <input type="range" id="yearRangeStart" min="2015" max="2022" value="2015">
-                <input type="range" id="yearRangeEnd" min="2015" max="2022" value="2022">
-                <p>Start Year: <span id="startYear">2015</span></p>
-                <p>End Year: <span id="endYear">2022</span></p>
+                <span id="startYear">2015</span>
+                <input type="range" id="yearSlider" min="2015" max="2022" value="2015">
+                <span id="endYear">2022</span>
             </div>
         </div>
     </div>
