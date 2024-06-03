@@ -135,7 +135,7 @@ function updateChart() {
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 20)
         .attr("x", -height / 2 + margin.top)
-        .text("Consultations per Capita");
+        .text("Immunisation");
 
     const country = svg.selectAll(".country")
         .data(filteredData)

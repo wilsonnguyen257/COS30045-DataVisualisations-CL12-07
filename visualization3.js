@@ -1,7 +1,9 @@
+// Set up margins and dimensions
 const margin = { top: 20, right: 30, bottom: 40, left: 60 },
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
+// Create SVG container
 const svg = d3.select("#chart")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -9,10 +11,12 @@ const svg = d3.select("#chart")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
+// Set up scales and color
 const x = d3.scaleBand().range([0, width]).padding(0.1);
 const y = d3.scaleLinear().range([height, 0]);
 const color = d3.scaleOrdinal(d3.schemeCategory10);
 
+// Tooltip for hover information
 const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -20,6 +24,7 @@ const tooltip = d3.select("body").append("div")
 let selectedDataset;
 let years, countries;
 
+// Event listeners for dataset and year range changes
 d3.select("#datasetSelect").on("change", function() {
     selectedDataset = d3.select(this).property("value");
     loadData(selectedDataset);
@@ -33,25 +38,25 @@ d3.select("#yearRangeEnd").attr("min", 2015).attr("max", 2022).attr("value", 202
     updateYearRange();
 });
 
+// Function to load data from CSV
 function loadData(dataset) {
     d3.csv(dataset).then(data => {
         years = data.columns.slice(1);
-
-        countries = data.map(row => {
-            return {
-                id: row.Country,
-                values: years.map(year => ({
-                    year: year,
-                    consultations: +row[year]
-                }))
-            };
-        });
-
+        countries = data.map(row => ({
+            id: row.Country,
+            values: years.map(year => ({
+                year: year,
+                consultations: +row[year]
+            }))
+        }));
         updateCountrySelect();
         updateChart();
+    }).catch(error => {
+        console.error('Error loading the data:', error);
     });
 }
 
+// Function to update the country selection
 function updateCountrySelect() {
     const countrySelect = d3.select("#countrySelect");
     countrySelect.selectAll("div").remove();
@@ -72,18 +77,17 @@ function updateCountrySelect() {
         });
 
     d3.select("#selectAll").on("click", () => {
-        countrySelect.selectAll("input")
-            .property("checked", true);
+        countrySelect.selectAll("input").property("checked", true);
         updateChart();
     });
 
     d3.select("#unselectAll").on("click", () => {
-        countrySelect.selectAll("input")
-            .property("checked", false);
+        countrySelect.selectAll("input").property("checked", false);
         updateChart();
     });
 }
 
+// Function to update the year range
 function updateYearRange() {
     const startYear = +d3.select("#yearRangeStart").property("value");
     const endYear = +d3.select("#yearRangeEnd").property("value");
@@ -94,19 +98,17 @@ function updateYearRange() {
     updateChart();
 }
 
+// Function to update the chart based on selections
 function updateChart() {
-    const selectedCountries = d3.selectAll("#countrySelect input:checked")
-        .data().map(d => d.id);
+    const selectedCountries = d3.selectAll("#countrySelect input:checked").data().map(d => d.id);
 
     const startYear = d3.select("#yearRangeStart").property("value");
     const endYear = d3.select("#yearRangeEnd").property("value");
 
-    const filteredData = countries.filter(d => selectedCountries.includes(d.id)).map(country => {
-        return {
-            id: country.id,
-            values: country.values.filter(v => v.year >= startYear && v.year <= endYear)
-        };
-    });
+    const filteredData = countries.filter(d => selectedCountries.includes(d.id)).map(country => ({
+        id: country.id,
+        values: country.values.filter(v => v.year >= startYear && v.year <= endYear)
+    }));
 
     const dataTransformed = [];
     if (filteredData.length > 0) {
@@ -120,7 +122,6 @@ function updateChart() {
             }
         });
     } else {
-        // Render an empty chart
         years.forEach(year => {
             if (year >= startYear && year <= endYear) {
                 const obj = { year };
@@ -133,7 +134,6 @@ function updateChart() {
     }
 
     const keys = selectedCountries;
-
     const stackedData = d3.stack().keys(keys)(dataTransformed);
 
     x.domain(dataTransformed.map(d => d.year));
@@ -143,12 +143,12 @@ function updateChart() {
 
     svg.selectAll("*").remove();
 
-    svg.append("g")
+    const bars = svg.append("g")
         .selectAll("g")
         .data(stackedData)
         .join("g")
         .attr("fill", d => color(d.key))
-        .attr("class", d => "myRect " + d.key) // Add a class to each subgroup: their name
+        .attr("class", d => "myRect " + d.key)
         .selectAll("rect")
         .data(d => d)
         .join("rect")
@@ -157,30 +157,19 @@ function updateChart() {
         .attr("height", d => y(d[0]) - y(d[1]))
         .attr("width", x.bandwidth())
         .attr("stroke", "grey")
-        .on("mouseover", function (event, d) { // What happens when user hover a bar
-            // what subgroup are we hovering?
+        .on("mouseover", function(event, d) {
             const subGroupName = d3.select(this.parentNode).datum().key;
-
-            // Reduce opacity of all rect to 0.2
             d3.selectAll(".myRect").style("opacity", 0.2);
-
-            // Highlight all rects of this subgroup with opacity 1
             d3.selectAll("." + subGroupName).style("opacity", 1);
 
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
+            tooltip.transition().duration(200).style("opacity", .9);
             tooltip.html(`Year: ${d.data.year}<br/>Consultations: ${(d[1] - d[0]).toFixed(2)}`)
                 .style("left", `${event.pageX}px`)
                 .style("top", `${event.pageY - 28}px`);
         })
-        .on("mouseleave", function (event, d) { // When user do not hover anymore
-            // Back to normal opacity: 1
+        .on("mouseleave", function(event, d) {
             d3.selectAll(".myRect").style("opacity", 1);
-
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
+            tooltip.transition().duration(500).style("opacity", 0);
         });
 
     svg.append("g")
@@ -203,11 +192,12 @@ function updateChart() {
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 20)
         .attr("x", -height / 2 + margin.top)
-        .text("Consultations per Capita");
+        .text("Consultations");
 
     updateLegend(keys);
 }
 
+// Function to update the legend based on selected keys
 function updateLegend(keys) {
     const legendContainer = d3.select("#legend");
     legendContainer.selectAll("*").remove();
@@ -227,8 +217,7 @@ function updateLegend(keys) {
         .style("height", "12px")
         .style("margin-right", "5px");
 
-    legend.append("span")
-        .text(d => d);
+    legend.append("span").text(d => d);
 }
 
 // Load the initial dataset
