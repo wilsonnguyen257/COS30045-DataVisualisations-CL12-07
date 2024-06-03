@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Line Chart: Consultations per Year</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .axis text { font-size: 12px; }
+        .axis path, .axis line { fill: none; stroke: #000; }
+        .line { fill: none; stroke-width: 2px; }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: 60px;
+            height: 42px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .dropdown, .slider-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+            margin-bottom: 20px;
+        }
+        .checkbox {
+            margin-bottom: 5px;
+        }
+        .legend {
+            font-size: 12px;
+        }
+        .legend rect {
+            stroke-width: 2;
+        }
+        .country-select-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label for="datasetSelect">Select Dataset:</label>
+        <select id="datasetSelect">
+            <option value="Immunisation_Diphtheria_Tetanus_Pertussis.csv">Diphtheria, Tetanus, Pertussis</option>
+            <option value="Immunisation_Measles.csv">Measles</option>
+            <option value="Immunisation_Hepatitis B_dataset.csv">Hepatitis B</option>
+            <option value="Immunisation_Influenza_dataset.csv">Influenza</option>
+        </select>
+    </div>
+    <div>
+        <label for="countrySelect">Choose countries:</label>
+        <div>
+            <button id="selectAll">Select All</button>
+            <button id="unselectAll">Unselect All</button>
+        </div>
+        <div id="countrySelect" class="dropdown country-select-container"></div>
+    </div>
+    <div>
+        <label for="yearRange">Select Year Range:</label>
+        <div class="slider-container">
+            <input type="range" id="yearRangeStart" min="2000" max="2022" value="2000">
+            <input type="range" id="yearRangeEnd" min="2000" max="2022" value="2022">
+            <p>Start Year: <span id="startYear">2000</span></p>
+            <p>End Year: <span id="endYear">2022</span></p>
+        </div>
+    </div>
+    <div id="chart"></div>
+    <div id="legend"></div>
+    <script src="visualization2.js"></script>
+</body>
+</html>
