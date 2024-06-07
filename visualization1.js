@@ -98,12 +98,12 @@ function onDataLoad(data) {
       .attr("y", -margin.left + 15)
       .attr("x", -height / 2)
       .style("text-anchor", "middle")
-      .text("Life Expectancy");
+      .text("Life Expectancy (years)");
 
     scatterPlot.append("text")
       .attr("transform", `translate(${width / 2},${height + margin.bottom - 10})`)
       .style("text-anchor", "middle")
-      .text("Expenditure");
+      .text("Expenditure (Percentage of GDP)");
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
